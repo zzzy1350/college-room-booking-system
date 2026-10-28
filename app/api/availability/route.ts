@@ -1,0 +1,4 @@
+import {db,route,json,HttpError} from '@/lib/server';
+import {ROOMS,HOURS,validDate,today,addDays,startTime} from '@/lib/rules';
+import {APP_CONFIG} from '@/lib/config';
+export async function GET(req:Request){return route(async()=>{const p=new URL(req.url).searchParams;const room=p.get('room'),date=p.get('date');if(!ROOMS.some(r=>r.id===room)||!validDate(date)||date<today()||date>addDays(today(),APP_CONFIG.advanceBookingDays))throw new HttpError(400,'日期或会议室无效');const r=await db().prepare("SELECT hour,kind FROM reservations WHERE room=? AND date=? AND status='active'").bind(room,date).all<{hour:number,kind:string}>();return json({serverTime:Date.now(),slots:HOURS.map(hour=>({hour,state:startTime(date,hour)<=Date.now()?'past':r.results.some(x=>x.hour===hour&&x.kind==='blocked')?'blocked':r.results.some(x=>x.hour===hour)?'booked':'available'}))});});}
