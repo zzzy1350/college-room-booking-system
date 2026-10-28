@@ -1,0 +1,1 @@
+ALTER TABLE `reservations` ADD `class_name` text DEFAULT '' NOT NULL;

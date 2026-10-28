@@ -1,0 +1,1 @@
+ALTER TABLE `reservations` ADD `group_id` text DEFAULT '' NOT NULL;
